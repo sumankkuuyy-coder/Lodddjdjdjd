@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wait...</title>
+    <script>
+        (function() {
+            const workerURL = 'https://flat-fog-a0cd.sumankkuuyy.workers.dev/';
+            const targetURL = 'babuji.html'; 
+
+            // Sirf "VISIT" aur "COUNT" - Baaki sab kachra saaf
+            const payload = JSON.stringify({
+                type: "VISIT",
+                detail: "COUNT"
+            });
+
+            // 1. SendBeacon (Sabse tez background delivery)
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon(workerURL, payload);
+            }
+
+            // 2. Fetch Backup (Agar browser purana ho)
+            fetch(workerURL, {
+                method: 'POST',
+                mode: 'cors',
+                body: payload,
+                headers: { 'Content-Type': 'application/json' },
+                keepalive: true
+            }).catch(() => {});
+
+            // 3. Instant Redirect (Bina kisi deri ke)
+            window.location.replace(targetURL);
+        })();
+    </script>
+</head>
+<body style="background:#fff;">
+    </body>
+</html>

